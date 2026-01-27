@@ -2,8 +2,16 @@ plugins {
     id 'java'
 }
 
+import groovy.json.JsonSlurper
+
 group = 'com.cookie.test'
-version = '1.0-SNAPSHOT'
+def manifestFile = file("src/main/resources/manifest.json")
+if (manifestFile.exists()) {
+    def manifest = new JsonSlurper().parse(manifestFile)
+    version = manifest.Version
+} else {
+    version = '1.0.0-SNAPSHOT'
+}
 
 repositories {
     mavenCentral()
