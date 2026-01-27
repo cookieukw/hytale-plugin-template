@@ -13,7 +13,8 @@ echo "-----------------------------------"
 read -p "Enter Project Name (e.g., MyPlugin): " PROJECT_NAME
 read -p "Enter Author Name: " AUTHOR_NAME
 read -p "Enter Website URL: " WEBSITE_URL
-read -p "Enter Package Name (e.g., com.example.myplugin): " PACKAGE_NAME
+read -p "Enter Project Version (default: 1.0.0): " PROJECT_VERSION
+: ${PROJECT_VERSION:=1.0.0}
 
 if [ -z "$PROJECT_NAME" ] || [ -z "$PACKAGE_NAME" ]; then
     echo "Error: Project Name and Package Name are required."
@@ -43,6 +44,9 @@ if [ -f "$MANIFEST_PATH" ]; then
 
     # Update Project Name (2 spaces indent)
     sed -i "s/^  \"Name\": \".*\"/  \"Name\": \"$PROJECT_NAME\"/" "$MANIFEST_PATH"
+
+    # Update Version (2 spaces indent)
+    sed -i "s/^  \"Version\": \".*\"/  \"Version\": \"$PROJECT_VERSION\"/" "$MANIFEST_PATH"
 
     # Update Author Name (6 spaces indent)
     sed -i "s/^      \"Name\": \".*\"/      \"Name\": \"$AUTHOR_NAME\"/" "$MANIFEST_PATH"
@@ -107,8 +111,9 @@ if [ -f "./gradlew" ]; then
     chmod +x gradlew
     ./gradlew build
 else
-    # Suggest installing Gradle or using wrapper if missing, assuming system gradle exists for fallback
-    gradle build
+    echo "Error: Gradle wrapper './gradlew' not found."
+    echo "Please ensure you are running this script from the project root."
+    exit 1
 fi
 
 echo "Setup complete. JAR file should be in dist/"

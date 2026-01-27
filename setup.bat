@@ -31,6 +31,9 @@ echo Creating resources...
 if not exist "src\main\resources" mkdir "src\main\resources"
 if exist "files\manifest.json" copy "files\manifest.json" "src\main\resources\"
 
+set /p PROJECT_VERSION="Enter Project Version (default: 1.0.0): "
+if "%PROJECT_VERSION%"=="" set PROJECT_VERSION=1.0.0
+
 echo Updating manifest.json...
 :: Use regex replacement on the COPIED file in src, NOT files/
 powershell -Command ^
@@ -38,6 +41,7 @@ powershell -Command ^
     "$content = Get-Content $path -Raw; " ^
     "$content = $content -replace '\"Group\": \".*\"', '\"Group\": \"%PACKAGE_NAME%\"'; " ^
     "$content = $content -replace '  \"Name\": \".*\"', '  \"Name\": \"%PROJECT_NAME%\"'; " ^
+    "$content = $content -replace '  \"Version\": \".*\"', '  \"Version\": \"%PROJECT_VERSION%\"'; " ^
     "$content = $content -replace '      \"Name\": \".*\"', '      \"Name\": \"%AUTHOR_NAME%\"'; " ^
     "$content = $content -replace '\"Url\": \".*\"', '\"Url\": \"%WEBSITE_URL%\"'; " ^
     "$content = $content -replace '\"Website\": \".*\"', '\"Website\": \"%WEBSITE_URL%\"'; " ^
@@ -78,8 +82,9 @@ echo Running Gradle build...
 if exist "gradlew.bat" (
     call gradlew.bat build
 ) else (
-    echo Gradle wrapper not found, trying 'gradle' command...
-    call gradle build
+    echo Error: Gradle wrapper 'gradlew.bat' not found.
+    echo Please ensure you are running this script from the project root.
+    exit /b 1
 )
 
 echo Setup complete. JAR file should be in dist/
