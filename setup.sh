@@ -13,6 +13,7 @@ echo "-----------------------------------"
 read -p "Enter Project Name (e.g., MyPlugin): " PROJECT_NAME
 read -p "Enter Author Name: " AUTHOR_NAME
 read -p "Enter Website URL: " WEBSITE_URL
+read -p "Enter Package Name (e.g., com.example.myplugin): " PACKAGE_NAME
 read -p "Enter Project Version (default: 1.0.0): " PROJECT_VERSION
 : ${PROJECT_VERSION:=1.0.0}
 
