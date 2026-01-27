@@ -27,37 +27,51 @@ echo Updating Gradle configurations...
 powershell -Command "(Get-Content settings.gradle) -replace \"rootProject.name = 'ExamplePlugin'\", \"rootProject.name = '%PROJECT_NAME%'\" | Set-Content settings.gradle"
 powershell -Command "(Get-Content build.gradle) -replace \"group = 'com.cookie.test'\", \"group = '%PACKAGE_NAME%'\" | Set-Content build.gradle"
 
+echo Creating resources...
+if not exist "src\main\resources" mkdir "src\main\resources"
+if exist "files\manifest.json" copy "files\manifest.json" "src\main\resources\"
+
 echo Updating manifest.json...
-:: Use regex replacement instead of JSON parsing to preserve formatting, matching setup.sh logic
+:: Use regex replacement on the COPIED file in src, NOT files/
 powershell -Command ^
-    "$path = 'files/manifest.json'; " ^
+    "$path = 'src/main/resources/manifest.json'; " ^
     "$content = Get-Content $path -Raw; " ^
     "$content = $content -replace '\"Group\": \".*\"', '\"Group\": \"%PACKAGE_NAME%\"'; " ^
     "$content = $content -replace '  \"Name\": \".*\"', '  \"Name\": \"%PROJECT_NAME%\"'; " ^
     "$content = $content -replace '      \"Name\": \".*\"', '      \"Name\": \"%AUTHOR_NAME%\"'; " ^
     "$content = $content -replace '\"Url\": \".*\"', '\"Url\": \"%WEBSITE_URL%\"'; " ^
     "$content = $content -replace '\"Website\": \".*\"', '\"Website\": \"%WEBSITE_URL%\"'; " ^
+    "$content = $content -replace '\"Main\": \"com.cookie.test', '\"Main\": \"%PACKAGE_NAME%'; " ^
     "Set-Content $path $content"
 
-echo Creating resources...
-if not exist "src\main\resources" mkdir "src\main\resources"
-if exist "files\manifest.json" copy "files\manifest.json" "src\main\resources\"
-
 echo Refactoring and moving Java files...
-:: PowerShell script to handle file processing
+:: PowerShell script to handle file processing with correct subpackage preservation
 powershell -Command ^
     "$packageName = '%PACKAGE_NAME%'; " ^
     "$oldPackage = 'com.cookie.test'; " ^
     "Get-ChildItem -Path 'files' -Filter '*.java' -Recurse | ForEach-Object { " ^
     "   $content = Get-Content $_.FullName -Raw; " ^
-    "   $content = $content -replace \"package .*\", \"package $packageName;\"; " ^
-    "   $content = $content -replace \"import $oldPackage\", \"import $packageName\"; " ^
-    "   Set-Content -Path $_.FullName -Value $content; " ^
-    "   $fullPkg = $packageName; " ^
-    "   $path = 'src/main/java/' + $fullPkg.Replace('.', '/'); " ^
-    "   New-Item -ItemType Directory -Force -Path $path | Out-Null; " ^
-    "   Copy-Item -Path $_.FullName -Destination $path -Force; " ^
-    "   Write-Host \"Copied $($_.Name) to $path\"; " ^
+    "   $originalPkgLine = $content -split \"`r`n\" | Select-String -Pattern '^package\s+([\w\.]+);' | Select-Object -First 1; " ^
+    "   if ($originalPkgLine) { " ^
+    "       $originalPkg = $originalPkgLine.Matches.Groups[1].Value; " ^
+    "       " ^
+    "       if ($originalPkg.StartsWith($oldPackage)) { " ^
+    "           $newPkg = $originalPkg.Replace($oldPackage, $packageName); " ^
+    "       } else { " ^
+    "           $newPkg = $packageName; " ^
+    "       } " ^
+    "       " ^
+    "       $path = 'src/main/java/' + $newPkg.Replace('.', '/'); " ^
+    "       New-Item -ItemType Directory -Force -Path $path | Out-Null; " ^
+    "       " ^
+    "       $destFile = Join-Path $path $_.Name; " ^
+    "       " ^
+    "       $content = $content -replace \"package $oldPackage\", \"package $packageName\"; " ^
+    "       $content = $content -replace \"import $oldPackage\", \"import $packageName\"; " ^
+    "       " ^
+    "       Set-Content -Path $destFile -Value $content; " ^
+    "       Write-Host \"Created $destFile\"; " ^
+    "   } " ^
     "}"
 
 echo Running Gradle build...
@@ -69,8 +83,4 @@ if exist "gradlew.bat" (
 )
 
 echo Setup complete. JAR file should be in dist/
-:: Optional: Clean up target? User request was vague about "target", assumig they meant build artifacts or temp files, but usually we keep dist/.
-:: "apaga os arquivos desnecessarios da pasta target depois deter copiado para a files"
-:: This suggests cleaning up the build directory or similar.
-:: For now, we leave it as is unless specific target cleanup is needed.
 pause
