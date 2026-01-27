@@ -29,6 +29,7 @@ powershell -Command "(Get-Content build.gradle) -replace \"group = 'com.cookie.t
 
 echo Creating resources...
 if not exist "src\main\resources" mkdir "src\main\resources"
+if not exist "libs" mkdir "libs"
 if exist "files\manifest.json" copy "files\manifest.json" "src\main\resources\"
 
 set /p PROJECT_VERSION="Enter Project Version (default: 1.0.0): "

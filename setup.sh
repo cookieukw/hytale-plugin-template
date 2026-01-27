@@ -30,6 +30,7 @@ sed -i "s/group = 'com.cookie.test'/group = '$PACKAGE_NAME'/" build.gradle
 # 2. Create Resources & Copy Manifest
 echo "Creating resources..."
 mkdir -p src/main/resources
+mkdir -p libs
 if [ -f "files/manifest.json" ]; then
     # Copy manifest to resources
     cp files/manifest.json src/main/resources/
