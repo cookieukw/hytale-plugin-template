@@ -5,12 +5,12 @@
   "Group": "bolinho",
   "Authors": [
     {
-      "Name": "Hytale Modding",
-      "Url": "https://hytalemodding.dev"
+      "Name": "",
+      "Url": ""
     }
   ],
   "Main": "com.cookie.test.ExamplePlugin",
-  "Url": "https://hytalemodding.dev",
-  "Website": "https://hytalemodding.dev",
+  "Url": "",
+  "Website": "",
   "Permissions": []
 }
