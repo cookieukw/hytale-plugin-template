@@ -1,0 +1,16 @@
+{
+  "SchemaVersion": 1,
+  "Name": "ExamplePlugin",
+  "Version": "1.0.0",
+  "Group": "bolinho",
+  "Authors": [
+    {
+      "Name": "Hytale Modding",
+      "Url": "https://hytalemodding.dev"
+    }
+  ],
+  "Main": "com.cookie.test.ExamplePlugin",
+  "Url": "https://hytalemodding.dev",
+  "Website": "https://hytalemodding.dev",
+  "Permissions": []
+}
