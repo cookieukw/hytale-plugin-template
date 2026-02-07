@@ -9,8 +9,9 @@
     }
   ],
   "Main": "com.cookie.test.ExamplePlugin",
-  "Url": "",
-  "Website": "",
-  "Permissions": [],
+  "Website": "example.org",
+  "ServerVersion": "*",
+  "Dependencies": {},
+  "OptionalDependencies": {},
   "IncludesAssetPack":true
 }
