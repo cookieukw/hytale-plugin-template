@@ -1,5 +1,4 @@
 {
-  "SchemaVersion": 1,
   "Name": "ExamplePlugin",
   "Version": "1.0.0",
   "Group": "bolinho",
@@ -12,5 +11,6 @@
   "Main": "com.cookie.test.ExamplePlugin",
   "Url": "",
   "Website": "",
-  "Permissions": []
+  "Permissions": [],
+  "IncludesAssetPack":true
 }
